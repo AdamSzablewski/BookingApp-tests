@@ -159,3 +159,4 @@
 /Users/adamszablewski/Documents/c#/BookingApp/BookingApp.Tests/obj/Debug/net8.0/BookingApp.Tests.pdb
 /Users/adamszablewski/Documents/c#/BookingApp/BookingApp.Tests/obj/Debug/net8.0/BookingApp.Tests.genruntimeconfig.cache
 /Users/adamszablewski/Documents/c#/BookingApp/BookingApp.Tests/obj/Debug/net8.0/ref/BookingApp.Tests.dll
+/Users/adamszablewski/Documents/c#/BookingApp/BookingApp.Tests/obj/Debug/net8.0/BookingApp.Tests.sourcelink.json

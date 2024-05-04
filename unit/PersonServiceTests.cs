@@ -66,4 +66,83 @@ public class PersonServiceTests
             var service = new PersonService(mockRepository.Object);
             await Assert.ThrowsAsync<UserNotFoundException>(async () => await service.GetUserDtoById(userId));   
     }
+    [Fact]
+    public async Task DeletePerson_ValidId_ReturnTrue()
+    {
+        string userId = "uid";
+            Person person = new(){
+                FirstName = "Adam",
+                LastName = "SZ"
+            };
+        var mockPersonRepository = new Mock<IPersonRepository>();
+        mockPersonRepository.Setup(repo => repo.GetByIdAsync(userId))
+                .ReturnsAsync(person);
+        mockPersonRepository.Setup(repo => repo.DeleteAsync(person))
+                .ReturnsAsync(true);
+        var service = new PersonService(mockPersonRepository.Object);
+
+        bool result = await service.DeletePerson(userId);
+
+        Assert.Equal(true, result);
+    }
+    [Fact]
+    public async Task DeletePerson_UserNotFound_ThrowException()
+    {
+        string userId = "uid";
+            Person person = new(){
+                FirstName = "Adam",
+                LastName = "SZ"
+            };
+        var mockPersonRepository = new Mock<IPersonRepository>();
+        mockPersonRepository.Setup(repo => repo.GetByIdAsync(userId))
+                .ReturnsAsync(()=> null);
+        var service = new PersonService(mockPersonRepository.Object);
+
+        await Assert.ThrowsAsync<UserNotFoundException>(async ()=> await service.DeletePerson(userId));
+    }
+    [Fact]
+    public async Task UpdatePerson_CorrectPersonUpdateDto_ReturnDto()
+    {
+        string userId = "uid";
+        Adress adress = new(){
+            Country = "BeforeCountry",
+            City = "BeforeCity"
+        };
+        Person person = new(){
+                FirstName = "BeforeFirst",
+                LastName = "BeforeLast",
+                Email = "BeforeEmail",
+                PhoneNumber = "BeforeNumber",
+                Adress = adress
+
+        };
+        PersonUpdateDto personUpdateDto = new(){
+                FirstName = "AfterFirst",
+                LastName = "AfterLast",
+                Email = "AfterEmail",
+                PhoneNumber = "AfterNumber",
+                Country = "AfterCountry",
+                City = "AfterCity"
+        };
+        var mockPersonRepository = new Mock<IPersonRepository>();
+        var service = new PersonService(mockPersonRepository.Object);
+        mockPersonRepository.Setup(repo => repo.GetByIdAsync(userId))
+                .ReturnsAsync(person);
+
+        PersonDto result = await service.UpdatePerson(personUpdateDto, userId);
+
+        Assert.Equal(person.FirstName, personUpdateDto.FirstName);
+        Assert.Equal(person.LastName, personUpdateDto.LastName);
+        Assert.Equal(person.Email, personUpdateDto.Email);
+        Assert.Equal(person.PhoneNumber, personUpdateDto.PhoneNumber);
+        Assert.Equal(person.Adress.Country, personUpdateDto.Country);
+        Assert.Equal(person.Adress.City, personUpdateDto.City);
+
+
+
+
+
+
+
+    }
 }
