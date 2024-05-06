@@ -647,4 +647,340 @@ public class AppointmentServiceTests
         await Assert.ThrowsAsync<ServiceNotFoundException>(async ()=> await appointmentService.GetAvailableTimeSlotsForService(1, dateForAppointment));
 
     }
+    [Fact]
+    public void CheckIfTimeSlotAvailableTest_IsWithinWorkingHoursNotOverlapingNoAppointments_returnsTrue()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        DateOnly dateForAppointment = new DateOnly(2023, 10, 05);
+        DateTime slotStartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 11, 00, 00);
+        DateTime slotEndTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 12, 00, 00);
+
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        bool result = appointmentService.CheckIfTimeSlotAvailable(slotStartTime, slotEndTime, employee1, dateForAppointment);
+        Assert.Equal(true, result);
+    }
+    [Fact]
+    public void CheckIfTimeSlotAvailableTest_IsWithinWorkingHoursNotOverlaping1Appointment_returnsTrue()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        DateOnly dateForAppointment = new DateOnly(2023, 10, 05);
+        DateTime slotStartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 11, 00, 00);
+        DateTime slotEndTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 12, 00, 00);
+        Appointment appointment1 = new()
+        {
+            StartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 09, 00, 00),
+            EndTime =  new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 11, 00, 00),
+            Service = null,
+            Customer = null,
+            Employee = null
+        };
+        List<Appointment> appointments1 = [];
+        appointments1.Add(appointment1);
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            Appointments = appointments1,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        bool result = appointmentService.CheckIfTimeSlotAvailable(slotStartTime, slotEndTime, employee1, dateForAppointment);
+        Assert.Equal(true, result);
+    }
+    [Fact]
+    public void CheckIfTimeSlotAvailableTest_NotWithinWorkingHoursNotOverlaping1Appointment_returnsTrue()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        DateOnly dateForAppointment = new DateOnly(2023, 10, 05);
+        DateTime slotStartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 06, 00, 00);
+        DateTime slotEndTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 07, 00, 00);
+        Appointment appointment1 = new()
+        {
+            StartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 09, 00, 00),
+            EndTime =  new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 11, 00, 00),
+            Service = null,
+            Customer = null,
+            Employee = null
+        };
+        List<Appointment> appointments1 = [];
+        appointments1.Add(appointment1);
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            Appointments = appointments1,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        bool result = appointmentService.CheckIfTimeSlotAvailable(slotStartTime, slotEndTime, employee1, dateForAppointment);
+        Assert.Equal(false, result);
+    }
+    [Fact]
+    public void CheckIfTimeSlotAvailableTest_NotWithinWorkingHoursOverlaping1Appointment_returnsTrue()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        DateOnly dateForAppointment = new DateOnly(2023, 10, 05);
+        DateTime slotStartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 06, 00, 00);
+        DateTime slotEndTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 10, 00, 00);
+        Appointment appointment1 = new()
+        {
+            StartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 09, 00, 00),
+            EndTime =  new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 11, 00, 00),
+            Service = null,
+            Customer = null,
+            Employee = null
+        };
+        List<Appointment> appointments1 = [];
+        appointments1.Add(appointment1);
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            Appointments = appointments1,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        bool result = appointmentService.CheckIfTimeSlotAvailable(slotStartTime, slotEndTime, employee1, dateForAppointment);
+        Assert.Equal(false, result);
+    }
+    [Fact]
+    public void CheckIfTimeSlotAvailableTest_IsWithinWorkingHoursOverlaping1Appointment_returnsTrue()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        DateOnly dateForAppointment = new DateOnly(2023, 10, 05);
+        DateTime slotStartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 09, 00, 00);
+        DateTime slotEndTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 10, 00, 00);
+        Appointment appointment1 = new()
+        {
+            StartTime = new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 09, 00, 00),
+            EndTime =  new DateTime(dateForAppointment.Year, dateForAppointment.Month, dateForAppointment.Day, 11, 00, 00),
+            Service = null,
+            Customer = null,
+            Employee = null
+        };
+        List<Appointment> appointments1 = [];
+        appointments1.Add(appointment1);
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            Appointments = appointments1,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        bool result = appointmentService.CheckIfTimeSlotAvailable(slotStartTime, slotEndTime, employee1, dateForAppointment);
+        Assert.Equal(false, result);
+    }
+    [Fact]
+    public async Task BookAppointmentTest_validDto_shouldSaveAppointment()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        
+        Employee employee = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        Service service = new()
+        {
+            Id = 1,
+            Name = "TestService",
+            Price = 10,
+            Facility = null,
+            Length = TimeSpan.FromHours(2)
+        };
+        Customer customer = new()
+        {
+            Id = 1,
+            User = null
+        };
+        AppointmentCreateDto appointmentCreateDto = new()
+        {
+            ServiceId = service.Id,
+            EmployeeId = employee.Id,
+            CustomerId = customer.Id,
+            StartTime = new DateTime(2023, 01, 01, 10, 00, 00),
+            EndTime = new DateTime(2023, 01, 01, 11, 00, 00)
+        };
+        employeeRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.EmployeeId))
+                .ReturnsAsync(employee);
+        customerRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.CustomerId))
+                .ReturnsAsync(customer);
+        serviceRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.ServiceId))
+                .ReturnsAsync(service);
+        
+        Appointment appointment = await appointmentService.BookAppointment(appointmentCreateDto);
+
+
+        appointmentRepositoryMock.Verify(repo => repo.CreateAsync(It.IsAny<Appointment>()), Times.Once);
+        appointmentRepositoryMock.Verify(repo => repo.UpdateAsync(), Times.Once);
+        Assert.Equal(1, employee.Appointments.Count);
+        Assert.Equal(1, customer.Appointments.Count);
+
+    }
+    [Fact]
+    public async Task BookAppointmentTest_employeeMissing_shouldThrowException()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        
+        Employee employee = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        Service service = new()
+        {
+            Id = 1,
+            Name = "TestService",
+            Price = 10,
+            Facility = null,
+            Length = TimeSpan.FromHours(2)
+        };
+        Customer customer = new()
+        {
+            Id = 1,
+            User = null
+        };
+        AppointmentCreateDto appointmentCreateDto = new()
+        {
+            ServiceId = service.Id,
+            EmployeeId = employee.Id,
+            CustomerId = customer.Id,
+            StartTime = new DateTime(2023, 01, 01, 10, 00, 00),
+            EndTime = new DateTime(2023, 01, 01, 11, 00, 00)
+        };
+        employeeRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.EmployeeId))
+                .ReturnsAsync(()=>null);
+        customerRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.CustomerId))
+                .ReturnsAsync(customer);
+        serviceRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.ServiceId))
+                .ReturnsAsync(service);
+        
+        await Assert.ThrowsAsync<EmployeeNotFoundException>(async ()=> await appointmentService.BookAppointment(appointmentCreateDto));
+
+    }
+    [Fact]
+    public async Task BookAppointmentTest_customerMissing_shouldThrowException()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        
+        Employee employee = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        Service service = new()
+        {
+            Id = 1,
+            Name = "TestService",
+            Price = 10,
+            Facility = null,
+            Length = TimeSpan.FromHours(2)
+        };
+        Customer customer = new()
+        {
+            Id = 1,
+            User = null
+        };
+        AppointmentCreateDto appointmentCreateDto = new()
+        {
+            ServiceId = service.Id,
+            EmployeeId = employee.Id,
+            CustomerId = customer.Id,
+            StartTime = new DateTime(2023, 01, 01, 10, 00, 00),
+            EndTime = new DateTime(2023, 01, 01, 11, 00, 00)
+        };
+        employeeRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.EmployeeId))
+                .ReturnsAsync(employee);
+        customerRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.CustomerId))
+                .ReturnsAsync(()=> null);
+        serviceRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.ServiceId))
+                .ReturnsAsync(service);
+        
+        await Assert.ThrowsAsync<CustomerNotFoundException>(async ()=> await appointmentService.BookAppointment(appointmentCreateDto));
+
+    }
+    [Fact]
+    public async Task BookAppointmentTest_serviceMissing_shouldThrowException()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        
+        Employee employee = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        Service service = new()
+        {
+            Id = 1,
+            Name = "TestService",
+            Price = 10,
+            Facility = null,
+            Length = TimeSpan.FromHours(2)
+        };
+        Customer customer = new()
+        {
+            Id = 1,
+            User = null
+        };
+        AppointmentCreateDto appointmentCreateDto = new()
+        {
+            ServiceId = service.Id,
+            EmployeeId = employee.Id,
+            CustomerId = customer.Id,
+            StartTime = new DateTime(2023, 01, 01, 10, 00, 00),
+            EndTime = new DateTime(2023, 01, 01, 11, 00, 00)
+        };
+        employeeRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.EmployeeId))
+                .ReturnsAsync(employee);
+        customerRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.CustomerId))
+                .ReturnsAsync(customer);
+        serviceRepositoryMock.Setup(repo => repo.GetByIdAsync(appointmentCreateDto.ServiceId))
+                .ReturnsAsync(()=> null);
+        
+        await Assert.ThrowsAsync<ServiceNotFoundException>(async ()=> await appointmentService.BookAppointment(appointmentCreateDto));
+
+    }
+
 }
