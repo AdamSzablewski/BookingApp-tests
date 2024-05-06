@@ -325,7 +325,7 @@ public class AppointmentServiceTests
 
         Assert.Equal(true, result);
     }
-     [Fact]
+    [Fact]
     public void IsWithinWorkingHoursTest_startDuringEmplTimeEndOnEmplEndTime_ReturnsTrue()
     {
       
@@ -344,5 +344,92 @@ public class AppointmentServiceTests
         bool result = appointmentService.IsWithinWorkingHours(slotStartTime, slotEndTime, employeeStartTime, employeeEndTime);
 
         Assert.Equal(true, result);
+    }
+    [Fact]
+    public async void GetAvailableTimeSlotsForServiceTest_1EmplNoAppointments_ShouldReturn25()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        Facility facility = new()
+        {
+            Name = "TestFacility",
+            Adress = null,
+            Owner = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+
+        };
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        List<Employee> employeesForService = [];
+        employeesForService.Add(employee1);
+        Service service = new()
+        {
+            Id = 1,
+            Name = "TestService",
+            Price = 10,
+            Facility = facility,
+            Employees = employeesForService,
+            Length = TimeSpan.FromHours(2)
+        };
+        serviceRepositoryMock.Setup(repo => repo.GetByIdAsync(service.Id))
+                .ReturnsAsync(service);
+
+        List<TimeSlot> result = await appointmentService.GetAvailableTimeSlotsForService(service.Id, new DateOnly(2023, 10, 05));
+        Assert.Equal(25, result.Count);
+    }
+    [Fact]
+    public async void GetAvailableTimeSlotsForServiceTest_1EmplNoAppointments_ShouldReturn50()
+    {
+        var appointmentRepositoryMock = new Mock<IAppointmentRepository>();
+        var serviceRepositoryMock = new Mock<IServiceRepository>();
+        var employeeRepositoryMock = new Mock<IEmployeeRepository>();
+        var customerRepositoryMock = new Mock<ICustomerRepository>();
+        var appointmentService = new AppointmentService(appointmentRepositoryMock.Object, serviceRepositoryMock.Object, employeeRepositoryMock.Object, customerRepositoryMock.Object);
+        Facility facility = new()
+        {
+            Name = "TestFacility",
+            Adress = null,
+            Owner = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+
+        };
+        Employee employee1 = new(){
+            Id = 1,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        Employee employee2 = new(){
+            Id = 2,
+            User = null,
+            StartTime = new TimeOnly(09, 00, 00),
+            EndTime = new TimeOnly(17, 00, 00)
+        };
+        List<Employee> employeesForService = [];
+        employeesForService.Add(employee1);
+        employeesForService.Add(employee2);
+        Service service = new()
+        {
+            Id = 1,
+            Name = "TestService",
+            Price = 10,
+            Facility = facility,
+            Employees = employeesForService,
+            Length = TimeSpan.FromHours(2)
+        };
+        serviceRepositoryMock.Setup(repo => repo.GetByIdAsync(service.Id))
+                .ReturnsAsync(service);
+
+        List<TimeSlot> result = await appointmentService.GetAvailableTimeSlotsForService(service.Id, new DateOnly(2023, 10, 05));
+        Assert.Equal(50, result.Count);
     }
 }
