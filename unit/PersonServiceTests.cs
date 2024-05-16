@@ -5,7 +5,8 @@ public class PersonServiceTests
     public async Task GetUserDtoById_ValidId_ReturnsDto()
     {
         string userId = "validUserId";
-            Person person = new(){
+            Person person = new()
+            {
                 FirstName = "Adam",
                 LastName = "SZ"
             };
