@@ -69,7 +69,7 @@ public class ReviewServiceTest
 
         Assert.Equal(1, result.Count);
     }
-    // [Fact]
+    [Fact]
      public async Task PostReviewTest_shouldPublishReview()
     {
         string userId = "userId";
@@ -87,11 +87,19 @@ public class ReviewServiceTest
             };
         Facility facility = new()
         {
-            Owner = null,
-            Adress = null,
-            Name = null,
+            Owner = new Owner(),
+            Adress = new Adress(),
+            Name = "TestFacility",
+            Reviews = [],
             Id = 1,
-            //Points = new Dictionary<int, int>();
+            Points = new Dictionary<int, int>
+                {
+                    {1, 0},
+                    {2, 0},
+                    {3, 0},
+                    {4, 0},
+                    {5, 0},
+                }
         };
         
         var reviewRepositoryMock = new Mock<IReviewRepository>();
@@ -106,6 +114,102 @@ public class ReviewServiceTest
         await reviewService.PostReview(reviewCreateDto);
 
         Assert.Equal(facility.Points[5], 1);
+        Assert.Equal(facility.Reviews[0].Text, "Ok");
     }
+    [Fact]
+     public async Task PostReviewTest_NoText_shouldIncreasePoints()
+    {
+        string userId = "userId";
+        Review review = new()
+        {
+            Id = 0
+        };
+        ReviewCreateDto reviewCreateDto = new()
+            {
+                Id = 0,
+                UserId = "userId",
+                FacilityId = 1,
+                Points = 5
+            };
+        Facility facility = new()
+        {
+            Owner = new Owner(),
+            Adress = new Adress(),
+            Name = "TestFacility",
+            Reviews = [],
+            Id = 1,
+            Points = new Dictionary<int, int>
+                {
+                    {1, 0},
+                    {2, 0},
+                    {3, 0},
+                    {4, 0},
+                    {5, 0},
+                }
+        };
+        
+        var reviewRepositoryMock = new Mock<IReviewRepository>();
+        reviewRepositoryMock.Setup(repo => repo.GetByIdAsync(reviewCreateDto.Id))
+            .ReturnsAsync(review);
+        var facilityRepositoryMock = new Mock<IFacilityRepository>();
+        facilityRepositoryMock.Setup(repo => repo.GetByIdAsync(reviewCreateDto.FacilityId))
+            .ReturnsAsync(facility);
+
+        var reviewService = new ReviewService(reviewRepositoryMock.Object, facilityRepositoryMock.Object);
+
+        await reviewService.PostReview(reviewCreateDto);
+
+        Assert.Equal(facility.Points[5], 1);
+        Assert.Equal(facility.Reviews.Count, 0);
+    }
+    [Fact]
+     public async Task PostReviewTest_EmptyText_shouldIncreasePoints()
+    {
+        string userId = "userId";
+        Review review = new()
+        {
+            Id = 0
+        };
+        ReviewCreateDto reviewCreateDto = new()
+            {
+                Id = 0,
+                UserId = "userId",
+                FacilityId = 1,
+                Points = 5,
+                Text = ""
+            };
+        Facility facility = new()
+        {
+            Owner = new Owner(),
+            Adress = new Adress(),
+            Name = "TestFacility",
+            Reviews = [],
+            Id = 1,
+            Points = new Dictionary<int, int>
+                {
+                    {1, 0},
+                    {2, 0},
+                    {3, 0},
+                    {4, 0},
+                    {5, 0},
+                }
+        };
+        
+        var reviewRepositoryMock = new Mock<IReviewRepository>();
+        reviewRepositoryMock.Setup(repo => repo.GetByIdAsync(reviewCreateDto.Id))
+            .ReturnsAsync(review);
+        var facilityRepositoryMock = new Mock<IFacilityRepository>();
+        facilityRepositoryMock.Setup(repo => repo.GetByIdAsync(reviewCreateDto.FacilityId))
+            .ReturnsAsync(facility);
+
+        var reviewService = new ReviewService(reviewRepositoryMock.Object, facilityRepositoryMock.Object);
+
+        await reviewService.PostReview(reviewCreateDto);
+
+        Assert.Equal(facility.Points[5], 1);
+        Assert.Equal(facility.Reviews.Count, 0);
+    }
+
+
 
 }
